@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdio>
+#include "ident.h"
 
 using namespace std;
 
@@ -29,37 +30,6 @@ string TW [ ] = { "nullword", "and","do","else",
 
 string TD [ ] = { "nulldelim", ";", "{", "}", ",", ":", "=", 
 	 "(", ")","==","<", ">", "+", "-", "*", "/", "<=", "!=", ">=", "end_of_array"
-};
-
-class ident {
-	string name;
-	bool declare;
-	type_of_lex type;
-	bool assign;
-	int int_value;
-	double real_value;
-	string str_value;
-public:
-	ident () { declare = false; assign = false; }
-	ident ( const char * n ) {
-	name = n; declare = false; assign = false; }
-	bool operator== (const string& s) const {
-		return name == s; 
-	}
-	void put_name (const string n) { name = n; }
-	string get_name ( ) { return name; }
-	bool get_declare ( ) { return declare; }
-	void put_declare ( ) { declare = true; }
-	type_of_lex get_type ( ) { return type; }
-	void put_type ( type_of_lex t ) { type = t; }
-	bool get_assign ( ) { return assign; }
-	void put_assign ( ) { assign = true; }
-	int get_int_value ( ) { return int_value; }  
-	double get_real_value ( ) { return real_value; }
-	string get_str_value ( ) { return str_value; }    
-	void put_int_value ( int v ) { int_value = v; }
-	void put_real_value ( double v ) { real_value = v; }
-	void put_str_value ( string v ) { str_value = v; }
 };
 
 class tabl_ident {
