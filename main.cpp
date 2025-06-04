@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdio>
 #include "ident.h"
+#include "Lex.h"
 #include "table_ident.h"
 
 using namespace std;
@@ -13,62 +14,7 @@ bool isdigit (const char c) {
 	return (c >= '0') && (c <= '9');
 }
 
-string TW [ ] = { "nullword", "and","do","else",
-	"if","false","int","not","or","program","read", "real", "true", "while","write", "for", "goto", "string", "end_of_array"
-};
-
-string TD [ ] = { "nulldelim", ";", "{", "}", ",", ":", "=", 
-	 "(", ")","==","<", ">", "+", "-", "*", "/", "<=", "!=", ">=", "end_of_array"
-};
-
-table_ident TID (100);
-
-
-class Lex {
-	type_of_lex t_lex;
-	int int_field;
-	double real_field;
-	string str_field;
-public:
-	Lex (type_of_lex t = LEX_NULL, int v = 0, double vreal = 0, string str = "not_string") {
-		t_lex = t;
-		int_field = v;
-		real_field = vreal;
-		str_field = str;
-	}
-	void put_int_value (int v) { int_field = v; }
-	void put_real_value (double v) { real_field = v; }
-	void put_string_value (string v) { str_field = v; }
-	void put_type (type_of_lex lex_type) { t_lex = lex_type; }
-	type_of_lex get_type () { return t_lex; }
-	int get_int_value () { return int_field; }
-	double get_real_value() { return real_field; }
-	string get_string_value() { return str_field; }
-	friend ostream& operator << (ostream &s, Lex l) { 
-		if (l.t_lex == LEX_ID) s << TID[l.int_field].get_name() << endl;
-		else if (l.t_lex < LEX_SEMICOLON) s << TW[l.t_lex] << endl;
-		else if (l.t_lex < LEX_ID) s << TD[l.t_lex - 17] << endl;
-		else if (l.t_lex == LEX_INT_NUM) s << l.int_field << endl;
-		else if (l.t_lex == LEX_REAL_NUM) s << l.real_field << endl;
-		else if (l.t_lex == LEX_STR) s << l.str_field << endl;
-		else if (l.t_lex == POLIZ_GO) s << "!" << endl;
-		else if (l.t_lex == POLIZ_FGO) s << "!F" << endl;
-		else if (l.t_lex == POLIZ_ADDRESS) s << "_" << TID[l.int_field].get_name() << endl;
-		else if (l.t_lex == POLIZ_LABEL) s << l.int_field << endl;
-		else if (l.t_lex == POLIZ_UN_MINUS) s << "Унарный - " << endl;
-		else if (l.t_lex == POLIZ_UN_PLUS) s << "Унарный + " << endl;
-		return s;
-	}
-	void operator=(const Lex & lexeme)
-	{
-		t_lex = lexeme.t_lex;
-		int_field = lexeme.int_field;
-		real_field = lexeme.real_field;
-		str_field = lexeme.str_field;
-	}
-};
-
-Lex null_lex; // вспомогательный объект класса Lex; понадобится нам для проверки условий при реализации процедур рс-метода
+Lex null_lex; // helper object of the class Lex; понадобится нам для проверки условий при реализации процедур рс-метода
 
 class scanner {
 	FILE *fp;
@@ -135,7 +81,7 @@ Lex scanner::get_lex () {
 				else if (c == '/' ) { buf.push_back(c); CS = MAYBE_COM; }
 				else {
 					buf.push_back(c);
-					if ( (j = look(buf, TD)) ) return Lex ((type_of_lex) dlms[j], j);
+					if ( (j = look(buf, TD)) ) return Lex (dlms[j], j);
 					else if (c == EOF) return Lex (LEX_EOF);
 					else throw "Недопустимый символ!";
 				}
