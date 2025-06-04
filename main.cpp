@@ -1787,48 +1787,49 @@ void Executer::execute ( Poliz & prog )
 	}
 }
 
-class Interpretator
+class Interpreter
 {
-	Parser pars;
-	Executer E;
+	Parser parser;
+	Executer executor;
 public:
-	Interpretator ( char* program ): pars (program) {};
+	explicit Interpreter (const char* program): parser (program) {}
+
 	void interpretation ();
 };
 
-void Interpretator::interpretation ()
+void Interpreter::interpretation ()
 {
-	pars.analyze ();
-	E.execute ( pars.prog );
+	parser.analyze ();
+	executor.execute ( parser.prog );
 }
 
 
 
-int main (const int argc, char * argv[])
+int main(const int argc, char * argv[])
 {
-	if ( argc != 2 ) 
+	if (argc != 2)
 	{
 		cout << "Error: expected 2 cmd arguments, but received " << argc << " instead."  << endl;
 		return 1;
 	}
 	try
 	{
-		Interpretator I ( argv[1] );
-		I.interpretation ();
+		Interpreter I ( argv[1] );
+		I.interpretation();
 		return 0;
 	}
-	catch ( char c )
+	catch(char c)
 	{
 		cout << "unexpected symbol " << c << endl;
 		return 1;
 	}
-	catch ( Lex l )
+	catch (Lex l)
 	{
 		cout << "unexpected lexeme";
 		cout << l;
 		return 1;
 	}
-	catch ( const char *source )
+	catch (const char *source)
 	{
 		cout << source << endl;
 		return 1;
