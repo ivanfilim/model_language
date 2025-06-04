@@ -6,6 +6,8 @@
 #define IDENT_H
 #include <string>
 
+#include "type_of_lex.h"
+
 using namespace std;
 
 class ident {

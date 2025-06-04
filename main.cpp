@@ -12,18 +12,6 @@ bool isdigit (const char c) {
 	return (c >= '0') && (c <= '9');
 }
 
-enum type_of_lex { LEX_NULL, LEX_AND, LEX_DO, LEX_ELSE, 
-//                              1        2        3          
-	LEX_IF, LEX_FALSE, LEX_INT, LEX_NOT, LEX_OR, LEX_PROGRAM, LEX_READ, LEX_REAL, LEX_TRUE,
-//    4          5        6        7        8        9          10        11        12        
-	LEX_WHILE, LEX_WRITE, LEX_FOR, LEX_GOTO, LEX_STRING, LEX_SEMICOLON, LEX_LBRACE, LEX_RBRACE, LEX_COMMA, LEX_COLON, LEX_ASSIGN,
-//	   13          14        15       16          17          18             19         20          21         22          23         
-	LEX_LPAREN, LEX_RPAREN, LEX_EQ, LEX_LSS, LEX_GTR, LEX_PLUS, LEX_MINUS, LEX_TIMES, LEX_SLASH,
-//	    24          25        26      27        28       29        30         31          32        
-	LEX_LEQ, LEX_NEQ, LEX_GEQ, LEX_ID, LEX_INT_NUM, LEX_REAL_NUM, LEX_STR, LEX_EOF, POLIZ_GO, POLIZ_FGO, POLIZ_LABEL, POLIZ_ADDRESS, POLIZ_UN_PLUS, POLIZ_UN_MINUS,
-//    33        34       35       36       37           38          39       40        41        42          43            44            45            46
-};
-
 string TW [ ] = { "nullword", "and","do","else",
 	"if","false","int","not","or","program","read", "real", "true", "while","write", "for", "goto", "string", "end_of_array"
 };
