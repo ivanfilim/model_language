@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdio>
 #include "ident.h"
+#include "table_ident.h"
 
 using namespace std;
 
@@ -20,29 +21,7 @@ string TD [ ] = { "nulldelim", ";", "{", "}", ",", ":", "=",
 	 "(", ")","==","<", ">", "+", "-", "*", "/", "<=", "!=", ">=", "end_of_array"
 };
 
-class tabl_ident {
-	ident * p;
-	int size;
-	int top;
-public:
-	tabl_ident (int max_size) {
-		p = new ident[size = max_size]; 
-		top = 1;
-	}
-	~tabl_ident() { delete []p; }
-	ident& operator[] (int k) { return p[k]; }
-	int put (const string buf);
-};
-
-int tabl_ident::put (const string buf) {
-	for (int j = 1; j < top; j++)
-		if (buf == p[j].get_name()) return j;
-	p[top].put_name(buf);
-	top++;
-	return top-1;
-};
-
-tabl_ident TID (100);
+table_ident TID (100);
 
 
 class Lex {
@@ -94,7 +73,7 @@ Lex null_lex; // вспомогательный объект класса Lex; �
 class scanner {
 	FILE *fp;
 	char c;
-	int look (const string& buf, string * list) {
+	int look (const string& buf, const string * list) {
 		int i = 0;
 		while (list[i] != "end_of_array") {
 			if (buf == list [ i ])
