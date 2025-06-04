@@ -1,167 +1,12 @@
 #include <iostream>
-#include <cstdio>
 #include "ident.h"
 #include "Lex.h"
+#include "scanner.h"
 #include "table_ident.h"
 
 using namespace std;
 
-bool isalpha (const char c) {
-	return ((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z'));
-}
-
-bool isdigit (const char c) {
-	return (c >= '0') && (c <= '9');
-}
-
 Lex null_lex; // helper object of the class Lex; понадобится нам для проверки условий при реализации процедур рс-метода
-
-class scanner {
-	FILE *fp;
-	char c;
-	int look (const string& buf, const string * list) {
-		int i = 0;
-		while (list[i] != "end_of_array") {
-			if (buf == list [ i ])
-			return i;
-			i++; 
-		}
-		return 0; 
-	}
-	void gc () { c = fgetc (fp); }
-	static string TW [], TD [];
-	static type_of_lex words [];
-	static type_of_lex dlms [];
-public:
-	scanner (const char * program) {
-		fp = fopen ( program, "r" );
-		
-	}
-	Lex get_lex ();
-	void print_word_or_delim (int TYPE) {
-		if (TYPE <= LEX_STRING) cout << "Сама лексема: " << "'" << TW[TYPE] << "'; " << "тип лексемы: " << TYPE << "." << endl;
-		else if (TYPE <= LEX_GEQ) cout << "Сама лексема: " << "'" << TD[TYPE - LEX_STRING] << "'; " << "тип лексемы: " << TYPE << "." << endl;
-	}
-};
-
-type_of_lex scanner::words [] = { LEX_NULL, LEX_AND, LEX_DO, LEX_ELSE,
-	LEX_IF, LEX_FALSE, LEX_INT, LEX_NOT, LEX_OR, LEX_PROGRAM, LEX_READ, LEX_REAL, LEX_TRUE, 
-	LEX_WHILE, LEX_WRITE, LEX_FOR, LEX_GOTO, LEX_STRING 
-};
-
-type_of_lex scanner::dlms [] = { LEX_NULL, LEX_SEMICOLON, LEX_LBRACE, LEX_RBRACE, LEX_COMMA, LEX_COLON, LEX_ASSIGN,
-	LEX_LPAREN, LEX_RPAREN, LEX_EQ, LEX_LSS, LEX_GTR, LEX_PLUS, LEX_MINUS, LEX_TIMES, LEX_SLASH,
-	LEX_LEQ, LEX_NEQ, LEX_GEQ
-};	
-
-string scanner:: TW [ ] = { "nullword", "and","do","else",
-	"if","false","int","not","or","program","read", "real", "true", "while","write", "for", "goto", "string", "end_of_array"
-};
-
-string scanner:: TD [ ] = { "nulldelim", ";", "{", "}", ",", ":", "=", 
-	 "(", ")","==","<", ">", "+", "-", "*", "/", "<=", "!=", ">=", "end_of_array"
-};
-
-Lex scanner::get_lex () { 
-	enum state { H, IDENT, INT_NUM, INT_NUMdot, REAL_NUM, STR, ALE, NEQ, MAYBE_COM, COM, END_COM };
-	state CS = H; 
-	string buf; 
-	int int_part, j;
-	double real_num, building_fraction;
-	do { 
-		gc ();	
-		switch (CS) {
-			case H: 
-				if ( c == ' ' || c == '\n' || c == '\r' || c == '\t') {}
-				else if (c == '"') { buf.push_back(c); CS = STR; }
-				else if (isalpha(c)) { buf.push_back(c); CS = IDENT; }
-				else if (isdigit(c)) { int_part = c - '0'; CS = INT_NUM; }
-				else if (c == '=' || c == '<' || c == '>') { buf.push_back(c); CS = ALE; }
-				else if (c == '!') { buf.push_back(c); CS = NEQ; }
-				else if (c == '/' ) { buf.push_back(c); CS = MAYBE_COM; }
-				else {
-					buf.push_back(c);
-					if ( (j = look(buf, TD)) ) return Lex (dlms[j], j);
-					else if (c == EOF) return Lex (LEX_EOF);
-					else throw "Недопустимый символ!";
-				}
-				break;
-			case IDENT:
-				if ( (isalpha(c)) || (isdigit(c)) ) buf.push_back(c);
-				else {
-					ungetc(c, fp);
-					if ( (j = look(buf, TW)) ) return Lex ((type_of_lex) j, j);
-					else {
-						j = TID.put(buf);
-						return Lex (LEX_ID, j);
-					}
-				}
-				break;
-			case INT_NUM:
-				if (isdigit (c)) {
-					int_part = int_part * 10 + (c - '0'); 
-				}
-				else if (isalpha(c)) throw "Ошибка: некорректный идентификатор.";
-				else if (c == '.') CS = INT_NUMdot;
- 				else { 
-					ungetc(c, fp);
-					return Lex (LEX_INT_NUM, int_part); 
-				}
-				break;
-			case INT_NUMdot:
-				if (isdigit (c)) {
-					CS = REAL_NUM;
-					building_fraction = 0.1;
-					real_num = int_part;
-					real_num = real_num + building_fraction * (c - '0');
-				}
-				else throw "Ошибка: некорректная запись вещественного числа.";
-				break;
-			case REAL_NUM:
-				if (isdigit (c)) {
-					building_fraction = building_fraction / 10;
-					real_num = real_num + building_fraction * (c - '0');
-				}
-				else if (c == '.') throw "Лишняя точка!";
- 				else { 
-					ungetc(c, fp);
-					return Lex (LEX_REAL_NUM, 0, real_num ); 
-				}
-				break;
-			case STR:
-				if (c == '"') { buf.push_back(c); return Lex (LEX_STR, 0, 0, buf); } 
-				else if (c == EOF) throw "Ошибка: не хватает закрывающих кавычек.";
-				else buf.push_back(c);
-				break;
-			case ALE:
-				if ( c == '=' ) buf.push_back(c);
-				else ungetc(c, fp);
-				j = look (buf, TD);
-				return Lex ((type_of_lex) dlms[j], j ); 
-			case NEQ:
-				if (c == '=') {
-					buf.push_back(c); 
-					j = look ( buf, TD );
-					return Lex ( LEX_NEQ, j ); 
-				}
-				else throw "Ошибка при использовании символа '!'.";
-				break;
-			case MAYBE_COM:
-				if (c != '*') {
-					ungetc(c, fp);
-					j = look(buf, TD);	
-					return Lex ((type_of_lex) dlms[j], j);
-				}
-				else { CS = COM; buf.clear(); }
-				break;
-			case COM:
-				if (c == '*') { CS = END_COM; break; }
-			case END_COM:
-				if (c == '/') CS = H;
-		}
-	}
-	while (true);
-}
 
 
 template < class T, int max_size > 
@@ -173,8 +18,8 @@ public:
 	void reset() { top = 0; }
 	void push(T i);
 	T pop();
-	bool is_empty(){ return top == 0; }
-	bool is_full() { return top == max_size; }
+	[[nodiscard]] bool is_empty() const { return top == 0; }
+	[[nodiscard]] bool is_full() const { return top == max_size; }
 };
 
 template <class T, int max_size >
@@ -1959,11 +1804,11 @@ void Interpretator::interpretation ()
 
 
 
-int main (int argc, char * argv[])
+int main (const int argc, char * argv[])
 {
 	if ( argc != 2 ) 
 	{
-		cout << "Ошибка! Неверное количество аргументов командной строки."  << endl;
+		cout << "Error: expected 2 cmd arguments, but received " << argc << " instead."  << endl;
 		return 1;
 	}
 	try
