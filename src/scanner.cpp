@@ -2,11 +2,11 @@
 // Created by ivan on 6/4/25.
 //
 
-#include "scanner.h"
+#include "../include/scanner.h"
 #include <string>
 
-#include "Lex.h"
-#include "type_of_lex.h"
+#include "../include/Lex.h"
+#include "../include/type_of_lex.h"
 
 using namespace std;
 

@@ -1,8 +1,8 @@
 #include <iostream>
-#include "ident.h"
-#include "Lex.h"
-#include "scanner.h"
-#include "table_ident.h"
+#include "../include/Lex.h"
+#include "../include/table_ident.h"
+#include "../include/ident.h"
+#include "../include/scanner.h"
 
 using namespace std;
 
