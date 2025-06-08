@@ -65,10 +65,8 @@ Lex scanner::get_lex () {
 				else {
 					ungetc(c, fp);
 					if ( (j = look(buf, TW)) ) return Lex ((type_of_lex) j, j);
-					else {
-						j = TID.put(buf);
-						return Lex (LEX_ID, j);
-					}
+					j = TID.put(buf);
+					return Lex (LEX_ID, j);
 				}
 				break;
 			case INT_NUM:

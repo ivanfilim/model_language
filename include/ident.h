@@ -29,7 +29,7 @@ public:
     string get_name ( ) { return name; }
     bool get_declare ( ) const { return declare; }
     void put_declare ( ) { declare = true; }
-    type_of_lex get_type ( ) { return type; }
+    type_of_lex get_type ( ) const { return type; }
     void put_type ( type_of_lex t ) { type = t; }
     bool get_assign ( ) const { return assign; }
     void put_assign ( ) { assign = true; }

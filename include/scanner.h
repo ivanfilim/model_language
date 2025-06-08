@@ -13,7 +13,7 @@ class scanner {
     FILE *fp;
     char c;
 
-    static int look (const string& buf, const string * list) {
+    static int look(const string& buf, const string * list) {
         int i = 0;
         while (list[i] != "end_of_array") {
             if (buf == list [ i ])
@@ -32,7 +32,7 @@ public:
     }
     Lex get_lex ();
 
-    static void print_word_or_delim (int TYPE) {
+    static void print_word_or_delim (const int TYPE) {
         if (TYPE <= LEX_STRING) cout << "Сама лексема: " << "'" << TW[TYPE] << "'; " << "тип лексемы: " << TYPE << "." << endl;
         else if (TYPE <= LEX_GEQ) cout << "Сама лексема: " << "'" << TD[TYPE - LEX_STRING] << "'; " << "тип лексемы: " << TYPE << "." << endl;
     }
